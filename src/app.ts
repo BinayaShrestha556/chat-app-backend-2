@@ -15,6 +15,6 @@ app.get("/", (req, res) => {
 import authRoutes from "./routes/auth.route";
 app.use("/api/auth", authRoutes);
 import messageRoutes from "./routes/message.routes";
-app.use("api/messages", messageRoutes);
+app.use("/api/messages", messageRoutes);
 
 export default app;
