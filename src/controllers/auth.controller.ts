@@ -7,6 +7,7 @@ import generateToken from "../utils/generateTokens";
 export const login = asyncHandler(async (req: Request, res: Response) => {
   try {
     const { password, username } = req.body;
+
     if (!username || !password)
       return res.status(400).json({ error: "Provide credentials" });
     const user = await prismadb.user.findUnique({ where: { username } });

@@ -55,6 +55,7 @@ export const sendMessage = asyncHandler(async (req: Request, res: Response) => {
 });
 export const getMessages = asyncHandler(async (req: Request, res: Response) => {
   try {
+    console.log(req.user.id);
     const chatId = req.params.id;
     const userId = req.user.id;
     if (!userId) return res.status(400).json({ error: "Not logged in." });
@@ -77,7 +78,11 @@ export const getMessages = asyncHandler(async (req: Request, res: Response) => {
             profilePic: true,
           },
         },
-        messages: true,
+        messages: {
+          orderBy: {
+            createdAt: "asc",
+          },
+        },
         createdAt: true,
       },
     });
@@ -89,3 +94,44 @@ export const getMessages = asyncHandler(async (req: Request, res: Response) => {
     return res.status(500).json({ error: "Server Error!!" });
   }
 });
+export const getConversations = asyncHandler(
+  async (req: Request, res: Response) => {
+    try {
+      const userId = req.user.id;
+      const conversation = await prismadb.conversation.findMany({
+        where: {
+          participants: {
+            some: {
+              id: userId,
+            },
+          },
+        },
+        include: {
+          messages: {
+            take: 1,
+            orderBy: {
+              createdAt: "desc",
+            },
+          },
+          participants: {
+            select: {
+              id: true,
+              username: true,
+              fullname: true,
+              profilePic: true,
+            },
+          },
+        },
+        orderBy: {
+          updatedAt: "desc",
+        },
+      });
+      if (!conversation)
+        return res.status(404).json({ error: "Conversation not found." });
+      return res.json(conversation).status(200);
+    } catch (error: any) {
+      console.log(error.message);
+      return res.status(500).json({ error: "Server Error!!" });
+    }
+  }
+);
