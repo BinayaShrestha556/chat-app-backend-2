@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
-import { DefaultEventsMap, Server } from "socket.io";
+import { DefaultEventsMap, Server, Socket } from "socket.io";
 import http from "http";
 import express from "express";
 import cookie from "cookie";
-import { Socket } from "socket.io";
+
 import { DecodedToken } from "../middlewares/protectRoute";
 import prismadb from "../db/prisma";
 import { User } from "@prisma/client";
@@ -11,8 +11,8 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3001"],
-    credentials: true,
+    origin: process.env.CORS,
+    methods: ["GET", "POST"],
   },
 });
 export interface AuthenticatedSocket
@@ -20,31 +20,46 @@ export interface AuthenticatedSocket
   user?: User | null;
 }
 io.use(async (socket, next) => {
-  const rawCookie = socket.handshake.headers.cookie;
-
-  if (!rawCookie) {
-    return next(new Error("No cookie sent"));
-  }
-
-  const parsed = cookie.parse(rawCookie);
-  const token = parsed.token; // adjust if your cookie name is different
-
-  if (!token) {
-    return next(new Error("Token missing"));
-  }
-
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
+    const rawCookie = socket.handshake.headers.cookie; // Raw cookie string
+
+    if (!rawCookie) {
+      return next(new Error("No cookie sent"));
+    }
+
+    // Split the cookie string by `;` to separate each cookie
+    const cookies = rawCookie.split(";");
+
+    // Find the 'jwt' cookie by searching for it
+    let jwtToken: string | undefined;
+    for (const cookie of cookies) {
+      const [key, value] = cookie.trim().split("=");
+      if (key === "jwt") {
+        jwtToken = value;
+        break;
+      }
+    }
+
+    if (!jwtToken) {
+      return next(new Error("JWT token not found"));
+    }
+
+    const decoded = jwt.verify(
+      jwtToken,
+      process.env.JWT_SECRET!
+    ) as DecodedToken;
     const user = await prismadb.user.findUnique({
       where: { id: decoded.userId },
     });
     if (!user) {
       next(new Error("not authenticated"));
     }
+    console.log(user);
     (socket as AuthenticatedSocket).user = user;
 
     next();
   } catch (err) {
+    console.log(err);
     return next(new Error("Invalid or expired token"));
   }
 });
