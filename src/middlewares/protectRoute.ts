@@ -2,7 +2,8 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { asyncHandler } from "../utils/async-handler";
 import { User } from "@prisma/client";
-interface DecodedToken extends JwtPayload {
+import prismadb from "../db/prisma";
+export interface DecodedToken extends JwtPayload {
   userId: string;
 }
 declare global {
@@ -27,7 +28,7 @@ const protectRoute = asyncHandler(
       if (!decoded) {
         return res.status(401).json({ error: "Invalid token" });
       }
-      const user = await prisma?.user.findUnique({
+      const user = await prismadb.user.findUnique({
         where: { id: decoded.userId },
       });
       if (!user) return res.status(404).json({ error: "user not found" });

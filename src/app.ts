@@ -1,15 +1,15 @@
 import express, { Express } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-const app: Express = express();
 
 // Middleware
 app.use(
   cors({
-    origin: process.env.CORS,
+    origin: ["http://localhost:3001"],
     credentials: true,
   })
 );
+import { app } from "./socket/socket";
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
