@@ -64,9 +64,47 @@ io.use(async (socket, next) => {
   }
 });
 const userSocketMap: { [key: string]: string } = {}; //{userId:socketId}
-io.on("connection", (socket) => {
-  console.log("a user connected", socket.id);
-  const userId = socket.handshake.query.userId as string;
-  if (!userId) if (userId) userSocketMap[userId] = socket.id;
+io.on("connection", (socket: AuthenticatedSocket) => {
+  console.log("User connected:", socket.id);
+
+  // Join a conversation room
+  socket.on("join-room", (conversationId: string) => {
+    socket.join(conversationId);
+    console.log(`User ${socket.user?.id} joined room ${conversationId}`);
+  });
+
+  // Leave a room (optional)
+  socket.on("leave-room", (conversationId: string) => {
+    socket.leave(conversationId);
+    console.log(`User ${socket.user?.id} left room ${conversationId}`);
+  });
+  socket.on("join-all-rooms", (conversationIds) => {
+    conversationIds.forEach((id: string) => socket.join(id));
+  });
+
+  // Send a message
+  socket.on("send-message", async ({ conversationId, body }) => {
+    if (!socket.user) return;
+
+    // Save message to DB
+    const message = await prismadb.message.create({
+      data: {
+        senderId: socket.user.id,
+        conversationId,
+        body,
+      },
+      include: {
+        sender: true,
+      },
+    });
+
+    // Broadcast message to everyone in the room
+    io.to(conversationId).emit("receive-message", message);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+  });
 });
+
 export { io, server, app };
