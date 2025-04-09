@@ -83,23 +83,29 @@ io.on("connection", (socket: AuthenticatedSocket) => {
   });
 
   // Send a message
-  socket.on("send-message", async ({ conversationId, body }) => {
+  socket.on("send-message", async ({ roomId, message }) => {
     if (!socket.user) return;
 
     // Save message to DB
-    const message = await prismadb.message.create({
+    const newMessage = await prismadb.message.create({
       data: {
         senderId: socket.user.id,
-        conversationId,
-        body,
+        conversationId: roomId,
+        body: message,
       },
-      include: {
-        sender: true,
+      select: {
+        id: true,
+        senderId: true,
+        body: true,
+        createdAt: true,
       },
     });
 
     // Broadcast message to everyone in the room
-    io.to(conversationId).emit("receive-message", message);
+    socket.to(roomId).emit("receive-message", {
+      conversationId: roomId,
+      newMessage,
+    });
   });
 
   socket.on("disconnect", () => {
