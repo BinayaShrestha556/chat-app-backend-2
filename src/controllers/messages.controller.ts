@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../utils/async-handler";
 import prismadb from "../db/prisma";
+import { connect } from "http2";
 
 export const sendMessage = asyncHandler(async (req: Request, res: Response) => {
   try {
@@ -132,6 +133,63 @@ export const getConversations = asyncHandler(
     } catch (error: any) {
       console.log(error.message);
       return res.status(500).json({ error: "Server Error!!" });
+    }
+  }
+);
+export const createConversation = asyncHandler(
+  async (req: Request, res: Response) => {
+    try {
+      const participants: string[] = req.body.users;
+      const userId = req.user.id;
+
+      if (!participants.includes(userId)) {
+        return res.status(401).json({ error: "Not your chat" });
+      }
+
+      for (const id of participants) {
+        const user = await prismadb.user.findUnique({ where: { id } });
+        if (!user) {
+          return res.status(404).json({ error: `User ${id} doesn't exist` });
+        }
+      }
+
+      const existing = await prismadb.conversation.findMany({
+        where: {
+          participants: {
+            every: {
+              id: { in: participants },
+            },
+          },
+        },
+        include: {
+          participants: true,
+        },
+      });
+
+      const exactConvo = existing.find((convo) => {
+        const ids = convo.participants.map((p) => p.id).sort();
+        const sorted = [...participants].sort();
+        return (
+          ids.length === sorted.length && ids.every((id, i) => id === sorted[i])
+        );
+      });
+
+      if (exactConvo) {
+        return res.status(200).json({ id: exactConvo.id, exists: true });
+      }
+
+      const convo = await prismadb.conversation.create({
+        data: {
+          participants: {
+            connect: participants.map((id) => ({ id })),
+          },
+        },
+      });
+
+      return res.status(200).json({ id: convo.id, exists: false });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Something went wrong" });
     }
   }
 );

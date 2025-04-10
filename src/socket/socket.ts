@@ -69,8 +69,12 @@ io.on("connection", (socket: AuthenticatedSocket) => {
 
   // Join a conversation room
   socket.on("join-room", (conversationId: string) => {
-    socket.join(conversationId);
-    console.log(`User ${socket.user?.id} joined room ${conversationId}`);
+    if (socket.rooms.has(conversationId)) {
+      console.log("User is already in the room");
+    } else {
+      socket.join(conversationId);
+      console.log("User joined the room");
+    }
   });
 
   // Leave a room (optional)
@@ -83,7 +87,7 @@ io.on("connection", (socket: AuthenticatedSocket) => {
   });
 
   // Send a message
-  socket.on("send-message", async ({ roomId, message }) => {
+  socket.on("send-message", async ({ roomId, message, pic }) => {
     if (!socket.user) return;
 
     // Save message to DB
@@ -92,11 +96,13 @@ io.on("connection", (socket: AuthenticatedSocket) => {
         senderId: socket.user.id,
         conversationId: roomId,
         body: message,
+        pic,
       },
       select: {
         id: true,
         senderId: true,
         body: true,
+        pic: true,
         createdAt: true,
       },
     });

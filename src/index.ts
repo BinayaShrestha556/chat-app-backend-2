@@ -25,7 +25,8 @@ import authRoutes from "./routes/auth.route";
 app.use("/api/auth", authRoutes);
 import messageRoutes from "./routes/message.routes";
 app.use("/api/messages", messageRoutes);
-
+import userRoutes from "./routes/user.routes";
+app.use("/api/user", userRoutes);
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
