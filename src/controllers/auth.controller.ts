@@ -24,8 +24,8 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     );
     res.cookie("access", newAccessToken, {
       httpOnly: true,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV !== "development",
+      sameSite: "none",
+      secure: process.env.NODE_ENV === "production",
     });
     return res.status(200).json({
       id: user.id,
@@ -80,8 +80,8 @@ export const signin = asyncHandler(async (req: Request, res: Response) => {
       );
       res.cookie("access", newAccessToken, {
         httpOnly: true,
-        sameSite: "strict",
-        secure: process.env.NODE_ENV !== "development",
+        sameSite: "none",
+        secure: process.env.NODE_ENV === "production",
       });
       return res
         .json({
@@ -136,8 +136,8 @@ export const refresh = asyncHandler(async (req, res) => {
       );
       res.cookie("access", newAccessToken, {
         httpOnly: true,
-        sameSite: "strict",
-        secure: process.env.NODE_ENV !== "development",
+        sameSite: "none",
+        secure: process.env.NODE_ENV == "production",
       });
       return res.status(200).json({ accessToken: newAccessToken });
     }

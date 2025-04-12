@@ -8,15 +8,18 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 // Middleware
-const corsOrigin = process.env.CORS as string; // Fallback for local testing
+const allowedOrigins =
+  process.env.CORS === "*"
+    ? ["https://localhost:3000"] // fallback
+    : process.env.CORS!.split(",");
 
-// Configure CORS
 app.use(
   cors({
-    origin: process.env.CORS === "*" ? true : corsOrigin.split(","),
+    origin: allowedOrigins,
     credentials: true,
   })
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
