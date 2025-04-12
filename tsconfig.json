@@ -5,7 +5,7 @@
     "moduleResolution": "node",
     "outDir": "./dist",
     "paths": {
-      "@prisma/client": ["./src/client"]
+      "@prisma/client": ["dist/client"]
     },
     "rootDir": "./src",
     "strict": true,
@@ -16,6 +16,7 @@
   "include": [
     "src/**/*",
     "prisma",
+    "dist/client",
     "dist/client",
     "dist/client",
     "dist/client"

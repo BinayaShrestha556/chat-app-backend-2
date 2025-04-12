@@ -1,4 +1,4 @@
-import { PrismaClient } from "../client";
+import { PrismaClient } from "../../dist/client";
 declare global {
   // eslint-disable-next-line no-var
   var prisma: PrismaClient | undefined;
