@@ -1,8 +1,9 @@
+import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
 import prismadb from "../db/prisma";
 import bcryptjs from "bcryptjs";
 import { asyncHandler } from "../utils/async-handler";
-import generateToken from "../utils/generateTokens";
+import { generateRefreshToken } from "../utils/tokens";
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
   try {
@@ -15,7 +16,17 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     const isPasswordCorrect = await bcryptjs.compare(password, user.password);
     if (!isPasswordCorrect)
       return res.status(400).json({ error: "Incorrect Credentials" });
-    generateToken(user.id, res);
+    generateRefreshToken(user.id, res);
+    const newAccessToken = jwt.sign(
+      { id: user.id },
+      process.env.ACCESS_TOKEN_SECRET as string,
+      { expiresIn: "1m" }
+    );
+    res.cookie("access", newAccessToken, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV !== "development",
+    });
     return res.status(200).json({
       id: user.id,
       fullname: user.fullname,
@@ -30,7 +41,8 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
 export const logout = asyncHandler(async (req: Request, res: Response) => {
   try {
-    res.cookie("jwt", "", { maxAge: 0 });
+    res.cookie("refresh", "", { maxAge: 0 });
+    res.cookie("access", "", { maxAge: 0 });
     res.status(200).json({ message: "Logged out successfully." });
   } catch (error: any) {
     console.log("Error in logging out ", error.message);
@@ -60,7 +72,7 @@ export const signin = asyncHandler(async (req: Request, res: Response) => {
       },
     });
     if (newUser) {
-      generateToken(newUser.id, res);
+      generateRefreshToken(newUser.id, res);
       return res
         .json({
           id: newUser.id,
@@ -93,3 +105,31 @@ export const getAuthenticatedUser = asyncHandler(
     }
   }
 );
+export const refresh = asyncHandler(async (req, res) => {
+  const token = req.cookies.refresh;
+
+  if (!token) return res.status(401).json({ error: "Refresh token missing" });
+
+  jwt.verify(
+    token,
+    process.env.JWT_SECRET as string,
+    async (err: any, decoded: any) => {
+      if (err) return res.status(403).json({ error: "Invalid refresh token" });
+
+      const userId = (decoded as any).id;
+      const user = await prismadb.user.findUnique({ where: { id: userId } });
+      if (!user) return res.status(400).json({ error: "user not found." });
+      const newAccessToken = jwt.sign(
+        { id: userId },
+        process.env.ACCESS_TOKEN_SECRET as string,
+        { expiresIn: "1m" }
+      );
+      res.cookie("access", newAccessToken, {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: process.env.NODE_ENV !== "development",
+      });
+      return res.status(200).json({ accessToken: newAccessToken });
+    }
+  );
+});

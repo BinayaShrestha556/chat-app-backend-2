@@ -4,7 +4,7 @@ import { asyncHandler } from "../utils/async-handler";
 import { User } from "@prisma/client";
 import prismadb from "../db/prisma";
 export interface DecodedToken extends JwtPayload {
-  userId: string;
+  id: string;
 }
 declare global {
   namespace Express {
@@ -16,27 +16,29 @@ declare global {
 const protectRoute = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const token = req.cookies.jwt;
+      const token = req.cookies.access;
       if (!token)
         return res
           .status(401)
           .json({ error: "Unauthorized - no token provoded" });
       const decoded = jwt.verify(
         token,
-        process.env.JWT_SECRET!
+        process.env.ACCESS_TOKEN_SECRET!
       ) as DecodedToken;
       if (!decoded) {
-        return res.status(401).json({ error: "Invalid token" });
+        return res.status(403).json({ error: "Invalid token" });
       }
+
       const user = await prismadb.user.findUnique({
-        where: { id: decoded.userId },
+        where: { id: decoded.id },
       });
       if (!user) return res.status(404).json({ error: "user not found" });
       req.user = user;
       next();
     } catch (error: any) {
-      console.log("Error in protectRoute middleware", error.message);
-      res.status(500).json({ error: "internal server Error" });
+      if (error.message === "jwt expired")
+        return res.status(403).json({ error: "Invalid or expired token" });
+      console.log(error);
     }
   }
 );

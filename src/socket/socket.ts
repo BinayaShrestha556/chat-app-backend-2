@@ -2,7 +2,6 @@ import jwt from "jsonwebtoken";
 import { DefaultEventsMap, Server, Socket } from "socket.io";
 import http from "http";
 import express from "express";
-import cookie from "cookie";
 
 import { DecodedToken } from "../middlewares/protectRoute";
 import prismadb from "../db/prisma";
@@ -34,7 +33,7 @@ io.use(async (socket, next) => {
     let jwtToken: string | undefined;
     for (const cookie of cookies) {
       const [key, value] = cookie.trim().split("=");
-      if (key === "jwt") {
+      if (key === "access") {
         jwtToken = value;
         break;
       }
@@ -46,15 +45,15 @@ io.use(async (socket, next) => {
 
     const decoded = jwt.verify(
       jwtToken,
-      process.env.JWT_SECRET!
+      process.env.ACCESS_TOKEN_SECRET!
     ) as DecodedToken;
     const user = await prismadb.user.findUnique({
-      where: { id: decoded.userId },
+      where: { id: decoded.id },
     });
     if (!user) {
       next(new Error("not authenticated"));
     }
-    console.log(user);
+
     (socket as AuthenticatedSocket).user = user;
 
     next();
@@ -65,22 +64,17 @@ io.use(async (socket, next) => {
 });
 const userSocketMap: { [key: string]: string } = {}; //{userId:socketId}
 io.on("connection", (socket: AuthenticatedSocket) => {
-  console.log("User connected:", socket.id);
-
   // Join a conversation room
   socket.on("join-room", (conversationId: string) => {
     if (socket.rooms.has(conversationId)) {
-      console.log("User is already in the room");
     } else {
       socket.join(conversationId);
-      console.log("User joined the room");
     }
   });
 
   // Leave a room (optional)
   socket.on("leave-room", (conversationId: string) => {
     socket.leave(conversationId);
-    console.log(`User ${socket.user?.id} left room ${conversationId}`);
   });
   socket.on("join-all-rooms", (conversationIds) => {
     conversationIds.forEach((id: string) => socket.join(id));
@@ -114,9 +108,7 @@ io.on("connection", (socket: AuthenticatedSocket) => {
     });
   });
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
-  });
+  socket.on("disconnect", () => {});
 });
 
 export { io, server, app };

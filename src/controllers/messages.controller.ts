@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../utils/async-handler";
 import prismadb from "../db/prisma";
-import { connect } from "http2";
 
 export const sendMessage = asyncHandler(async (req: Request, res: Response) => {
   try {
@@ -56,7 +55,6 @@ export const sendMessage = asyncHandler(async (req: Request, res: Response) => {
 });
 export const getMessages = asyncHandler(async (req: Request, res: Response) => {
   try {
-    console.log(req.user.id);
     const chatId = req.params.id;
     const userId = req.user.id;
     if (!userId) return res.status(400).json({ error: "Not logged in." });
