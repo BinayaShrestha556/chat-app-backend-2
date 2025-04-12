@@ -5,7 +5,7 @@ import express from "express";
 
 import { DecodedToken } from "../middlewares/protectRoute";
 import prismadb from "../db/prisma";
-import { User } from "../../dist/client";
+import { User } from "../client";
 
 const app = express();
 const server = http.createServer(app);
