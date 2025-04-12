@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "nodemon --exec ts-node src/index.ts",
-    "build": "rimraf dist && mkdir dist && npx prisma generate && tsc"
+    "build": "npx prisma generate && tsc"
   },
   "keywords": [],
   "author": "",
