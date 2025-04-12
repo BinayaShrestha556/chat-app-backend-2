@@ -20,7 +20,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     const newAccessToken = jwt.sign(
       { id: user.id },
       process.env.ACCESS_TOKEN_SECRET as string,
-      { expiresIn: "1m" }
+      { expiresIn: "60m" }
     );
     res.cookie("access", newAccessToken, {
       httpOnly: true,
@@ -73,6 +73,16 @@ export const signin = asyncHandler(async (req: Request, res: Response) => {
     });
     if (newUser) {
       generateRefreshToken(newUser.id, res);
+      const newAccessToken = jwt.sign(
+        { id: newUser.id },
+        process.env.ACCESS_TOKEN_SECRET as string,
+        { expiresIn: "60m" }
+      );
+      res.cookie("access", newAccessToken, {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: process.env.NODE_ENV !== "development",
+      });
       return res
         .json({
           id: newUser.id,
@@ -122,7 +132,7 @@ export const refresh = asyncHandler(async (req, res) => {
       const newAccessToken = jwt.sign(
         { id: userId },
         process.env.ACCESS_TOKEN_SECRET as string,
-        { expiresIn: "1m" }
+        { expiresIn: "60m" }
       );
       res.cookie("access", newAccessToken, {
         httpOnly: true,
