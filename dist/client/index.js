@@ -152,7 +152,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\BINAYA\\Desktop\\chat-app\\dist\\prisma\\client",
+      "value": "C:\\Users\\BINAYA\\Desktop\\chat-app\\src\\client",
       "fromEnvVar": null
     },
     "config": {
@@ -170,10 +170,10 @@ const config = {
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": "../../../.env",
-    "schemaEnvPath": "../../../.env"
+    "rootEnvPath": null,
+    "schemaEnvPath": "../../.env"
   },
-  "relativePath": "../../../prisma",
+  "relativePath": "../../prisma",
   "clientVersion": "6.5.0",
   "engineVersion": "173f8d54f8d52e692c7e27e72a88314ec7aeff60",
   "datasourceNames": [
@@ -189,8 +189,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../dist/prisma/client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id         String   @id @default(cuid())\n  username   String   @unique\n  fullname   String\n  password   String\n  gender     Gender\n  profilePic String\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n\n  conversations Conversation[]\n  messages      Message[]\n}\n\nmodel Conversation {\n  id        String   @id @default(cuid())\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  participants User[]\n\n  messages Message[]\n}\n\nmodel Message {\n  id             String       @id @default(cuid())\n  createdAt      DateTime     @default(now())\n  updatedAt      DateTime     @updatedAt\n  conversationId String\n  conversation   Conversation @relation(fields: [conversationId], references: [id])\n  senderId       String\n  sender         User         @relation(fields: [senderId], references: [id])\n  body           String?\n  pic            Boolean      @default(false)\n}\n\nenum Gender {\n  male\n  female\n}\n",
-  "inlineSchemaHash": "d46d3936bc938925ff09b5785a7ed510b33de45e9acade6cad93abe7161baf66",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id         String   @id @default(cuid())\n  username   String   @unique\n  fullname   String\n  password   String\n  gender     Gender\n  profilePic String\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n\n  conversations Conversation[]\n  messages      Message[]\n}\n\nmodel Conversation {\n  id        String   @id @default(cuid())\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  participants User[]\n\n  messages Message[]\n}\n\nmodel Message {\n  id             String       @id @default(cuid())\n  createdAt      DateTime     @default(now())\n  updatedAt      DateTime     @updatedAt\n  conversationId String\n  conversation   Conversation @relation(fields: [conversationId], references: [id])\n  senderId       String\n  sender         User         @relation(fields: [senderId], references: [id])\n  body           String?\n  pic            Boolean      @default(false)\n}\n\nenum Gender {\n  male\n  female\n}\n",
+  "inlineSchemaHash": "f57104fc9076c2ef56d3a22aa1165f911128e28ced933f3206a8ab03725d0fba",
   "copyEngine": true
 }
 
@@ -199,8 +199,8 @@ const fs = require('fs')
 config.dirname = __dirname
 if (!fs.existsSync(path.join(__dirname, 'schema.prisma'))) {
   const alternativePaths = [
-    "dist/prisma/client",
-    "prisma/client",
+    "src/client",
+    "client",
   ]
   
   const alternativePath = alternativePaths.find((altPath) => {
@@ -230,7 +230,7 @@ Object.assign(exports, Prisma)
 
 // file annotations for bundling tools to include these files
 path.join(__dirname, "query_engine-windows.dll.node");
-path.join(process.cwd(), "dist/prisma/client/query_engine-windows.dll.node")
+path.join(process.cwd(), "src/client/query_engine-windows.dll.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
-path.join(process.cwd(), "dist/prisma/client/schema.prisma")
+path.join(process.cwd(), "src/client/schema.prisma")
