@@ -8,10 +8,15 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 // Middleware
+const corsOrigin = process.env.CORS || "https://localhost:3000"; // Fallback for local testing
+
+// Configure CORS
 app.use(
   cors({
-    origin: process.env.CORS,
-    credentials: true,
+    origin: corsOrigin, // Allow this origin
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allowed methods
+    allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
+    credentials: true, // If you need to send cookies or auth headers
   })
 );
 app.use(express.json());

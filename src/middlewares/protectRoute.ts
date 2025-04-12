@@ -1,8 +1,9 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { asyncHandler } from "../utils/async-handler";
-import { User } from "@prisma/client";
+
 import prismadb from "../db/prisma";
+import { User } from "src/client";
 export interface DecodedToken extends JwtPayload {
   id: string;
 }

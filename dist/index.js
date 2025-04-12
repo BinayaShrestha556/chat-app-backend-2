@@ -10,9 +10,13 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 // Middleware
+const corsOrigin = process.env.CORS || "https://localhost:3000"; // Fallback for local testing
+// Configure CORS
 socket_1.app.use((0, cors_1.default)({
-    origin: process.env.CORS,
-    credentials: true,
+    origin: corsOrigin, // Allow this origin
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allowed methods
+    allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
+    credentials: true, // If you need to send cookies or auth headers
 }));
 socket_1.app.use(express_1.default.json());
 socket_1.app.use(express_1.default.urlencoded({ extended: true }));
