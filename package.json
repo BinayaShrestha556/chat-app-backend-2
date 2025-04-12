@@ -8,9 +8,6 @@
     "dev": "nodemon --exec ts-node src/index.ts",
     "build": "rimraf dist && mkdir dist && npx prisma generate && tsc"
   },
-  "_moduleAliases": {
-    "@prisma/client": "/src/client"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",

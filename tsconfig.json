@@ -4,9 +4,9 @@
     "module": "CommonJS",
     "moduleResolution": "node",
     "outDir": "./dist",
-    "paths": {
-      "@prisma/client": ["dist/client"]
-    },
+    // "paths": {
+    //   "@prisma/client": ["dist/client"]
+    // },
     "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,

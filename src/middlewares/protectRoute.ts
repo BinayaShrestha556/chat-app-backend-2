@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { asyncHandler } from "../utils/async-handler";
 
 import prismadb from "../db/prisma";
-import { User } from "../../dist/client";
+import { User } from "@prisma/client";
 export interface DecodedToken extends JwtPayload {
   id: string;
 }
