@@ -10,10 +10,11 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 // Middleware
-const corsOrigin = process.env.CORS; // Fallback for local testing
-// Configure CORS
+const allowedOrigins = process.env.CORS === "*"
+    ? ["https://localhost:3000"] // fallback
+    : process.env.CORS.split(",");
 socket_1.app.use((0, cors_1.default)({
-    origin: process.env.CORS === "*" ? true : corsOrigin.split(","),
+    origin: allowedOrigins,
     credentials: true,
 }));
 socket_1.app.use(express_1.default.json());

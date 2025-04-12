@@ -24,8 +24,8 @@ exports.login = (0, async_handler_1.asyncHandler)(async (req, res) => {
         const newAccessToken = jsonwebtoken_1.default.sign({ id: user.id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "60m" });
         res.cookie("access", newAccessToken, {
             httpOnly: true,
-            sameSite: "strict",
-            secure: process.env.NODE_ENV !== "development",
+            sameSite: "none",
+            secure: true,
         });
         return res.status(200).json({
             id: user.id,
@@ -76,8 +76,8 @@ exports.signin = (0, async_handler_1.asyncHandler)(async (req, res) => {
             const newAccessToken = jsonwebtoken_1.default.sign({ id: newUser.id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "60m" });
             res.cookie("access", newAccessToken, {
                 httpOnly: true,
-                sameSite: "strict",
-                secure: process.env.NODE_ENV !== "development",
+                sameSite: "none",
+                secure: true,
             });
             return res
                 .json({
@@ -127,8 +127,8 @@ exports.refresh = (0, async_handler_1.asyncHandler)(async (req, res) => {
         const newAccessToken = jsonwebtoken_1.default.sign({ id: userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "60m" });
         res.cookie("access", newAccessToken, {
             httpOnly: true,
-            sameSite: "strict",
-            secure: process.env.NODE_ENV !== "development",
+            sameSite: "none",
+            secure: true,
         });
         return res.status(200).json({ accessToken: newAccessToken });
     });
