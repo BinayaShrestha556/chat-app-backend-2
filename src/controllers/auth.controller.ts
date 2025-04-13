@@ -41,8 +41,16 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 
 export const logout = asyncHandler(async (req: Request, res: Response) => {
   try {
-    res.cookie("refresh", "", { maxAge: 0 });
-    res.cookie("access", "", { maxAge: 0 });
+    res.clearCookie("access", {
+      httpOnly: true,
+      sameSite: "none",
+      secure: true,
+    });
+    res.clearCookie("refresh", {
+      httpOnly: true,
+      sameSite: "none",
+      secure: true,
+    });
     res.status(200).json({ message: "Logged out successfully." });
   } catch (error: any) {
     console.log("Error in logging out ", error.message);
