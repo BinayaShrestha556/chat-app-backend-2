@@ -34,16 +34,13 @@ io.use(async (socket, next) => {
     let jwtToken: string | undefined;
     for (const cookie of cookies) {
       const [key, value] = cookie.trim().split("=");
-      if (key === "access") {
+      if (key === "accessToken") {
         jwtToken = value;
         break;
       }
     }
 
-    if (!jwtToken) {
-      return next(new Error("JWT token not found"));
-    }
-
+    if (!jwtToken) return next(new Error("no token provided"));
     const decoded = jwt.verify(
       jwtToken,
       process.env.ACCESS_TOKEN_SECRET!

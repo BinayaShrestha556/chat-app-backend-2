@@ -2,8 +2,8 @@ import prismadb from "../db/prisma";
 import { asyncHandler } from "../utils/async-handler";
 
 export const searchUsers = asyncHandler(async (req, res, next) => {
-  const { id: userId } = req.user;
   const q = req.query.q;
+  const userId = req.query.dontInclude;
   if (!q) return res.json({ error: "provide some search query" }).json(400);
   try {
     const results = await prismadb.user.findMany({
@@ -17,7 +17,7 @@ export const searchUsers = asyncHandler(async (req, res, next) => {
           },
           {
             id: {
-              not: userId,
+              not: userId ? (userId as string) : undefined, // exclude the current user from the results
             },
           },
         ],
