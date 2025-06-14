@@ -33,6 +33,11 @@ import messageRoutes from "./routes/message.routes";
 app.use("/api/messages", messageRoutes);
 import userRoutes from "./routes/user.routes";
 app.use("/api/user", userRoutes);
+
+//for pinging
+app.get("/api/ping", (req, res) => {
+  res.status(200);
+});
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
