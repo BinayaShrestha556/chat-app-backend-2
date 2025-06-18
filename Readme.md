@@ -1,6 +1,6 @@
-# E-Commerce Backend API
+# Chat App Backend
 
-This repository hosts the backend API for an E-Commerce platform, built with Node.js, Express, and TypeScript. It provides robust functionalities for user authentication, user management, and real-time messaging, crucial for a dynamic e-commerce experience.
+This repository hosts the backend API for an Chat Application Vibewave, built with Socket.io, Node.js, Express, and TypeScript. It provides robust functionalities for user authentication, user management, and real-time messaging, crucial for a dynamic e-commerce experience.
 
 ## Features
 
